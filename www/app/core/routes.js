@@ -15,7 +15,7 @@ angular.module('app.routes', [])
         views: {
           'menuContent': {
             templateUrl: 'app/dashboard/dashboard.html',
-            controller: 'appCtrl'
+            controller: 'dashboardCtrl'
           }
         }
       })
