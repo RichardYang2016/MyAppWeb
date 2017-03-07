@@ -1,5 +1,3 @@
-
-
 'use strict'
 
 var appcontrol = angular.module('app.controllers', [
@@ -13,29 +11,26 @@ var appcontrol = angular.module('app.controllers', [
     'ion-google-place',
     'chart.js'
 ]);
-appcontrol.controller('appCtrl', function ($rootScope, $state, $scope, $stateParams, appService, $ionicHistory, $ionicPopover, $ionicModal,
+appcontrol.controller('appCtrl', function($rootScope, $state, $scope, $stateParams, appService, $ionicHistory, $ionicPopover, $ionicModal,
     $ionicScrollDelegate, $ionicLoading, $ionicActionSheet, $cordovaCamera, $cordovaSocialSharing, $cordovaGeolocation, $timeout) {
-    $scope.initializeApp = function () {
+    $scope.initializeApp = function() {
         // Init firebase lib
-
-
         // init Animation;
-
         (function initAnimate() {
             function testAnim(x) {
-                $('#animationSandbox').removeClass().addClass(x + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+                $('#animationSandbox').removeClass().addClass(x + ' animated').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
                     $(this).removeClass();
                 });
             };
 
-            $(document).ready(function () {
-                $('.js--triggerAnimation').click(function (e) {
+            $(document).ready(function() {
+                $('.js--triggerAnimation').click(function(e) {
                     e.preventDefault();
                     var anim = $('.js--animations').val();
                     testAnim(anim);
                 });
 
-                $('.js--animations').change(function () {
+                $('.js--animations').change(function() {
                     var anim = $(this).val();
                     testAnim(anim);
                 });
@@ -44,45 +39,48 @@ appcontrol.controller('appCtrl', function ($rootScope, $state, $scope, $statePar
 
         //get local storage.
 
+        firebase.auth().onAuthStateChanged(function(user) {
+                if (user && ((user.emailVerified) || firebase.auth().currentUser.providerData[0].providerId != "password")) {
+                    // User is signed in.  // this is for testing web based UI. 
 
+                    appService.setUserInfo(user);
+                    $scope.user = appService.getUserInfo();
+                    firebase.auth().currentUser.getToken().then(function(idToken) {
+                        appService.setUserAccessToken(idToken);
+                        appService.getUserFromServer(function(create) {
+                            if (create) {
+                                appService.createUserInServer();
+                            } else {
 
-        // Listening for auth state changes.
+                                $state.go("tabs.dashboard");
 
-        firebase.auth().onAuthStateChanged(function (user) {
-            if (user) {
-                // User is signed in.
-                var displayName = (user.displayName) ? user.displayName : null;
-                var email = user.email;
-                var emailVerified = user.emailVerified;
-                var photoURL = (user.photoURL) ? user.photoURL : null;
-                var uid = user.uid;
-                var providerData = (user.providerData) ? user.providerData : null;
-                if (firebase.auth().currentUser) {
-                    $state.go("tabs.dashboard");
-                };
-                // appService.setUserInfo();
+                            }
+                        });
+                    })
 
-            } else {
-                // User is signed out.
-                $state.go("authentication");
-                //write signout logic. 
-            }
+                } else {
+                    // User is signed out.
+                    $state.go("authentication");
+                    //write signout logic. 
+                }
 
-        }),
-            $scope.signOut = function () {
+            }),
+            $scope.signOut = function() {
 
                 $scope.showSpinner();
-                $timeout(function () {
+                $timeout(function() {
                     $ionicLoading.hide();
                     firebase.auth().signOut();
+                    appService.setUserInfo(null);
+                    $scope.user = {};
                 }, 1000);
             },
-            $scope.showSpinner = function () {
+            $scope.showSpinner = function() {
                 $ionicLoading.show({
                     template: '<ion-spinner></ion-spinner>'
                 });
             },
-            $scope.goTo = function (page) {
+            $scope.goTo = function(page) {
                 //$scope.closeAll();//Close all Modals
                 $state.go(page);
                 $ionicHistory.nextViewOptions({
@@ -92,7 +90,7 @@ appcontrol.controller('appCtrl', function ($rootScope, $state, $scope, $statePar
             }
 
     }
-        
+
 
 })
 
@@ -186,5 +184,3 @@ var customerTemplate =
     '<button class="button waves-effect waves-teal button-balanced button-outline button-block" ng-click="addToCartComplete(product);">Save</button>' +
     '</ion-content>' +
     '</ion-modal-view>';
-
-

@@ -109,7 +109,13 @@ appcontrol.controller('loginCtrl', function($rootScope, $state, $scope, $statePa
                 // Sign in with email and pass.
                 // [START authwithemail]
                 firebase.auth().signInWithEmailAndPassword($scope.user.loginEmail, $scope.user.password).then(function() {
-                    $scope.closeAllLogin();
+
+                    if (firebase.auth().currentUser.emailVerified || firebase.auth().currentUser.providerData[0].providerId != "password") {
+                        $scope.closeAllLogin();
+                    }else{
+                        appService.showAlert("Opps", "This email has not been verified.", "Close", 'button-assertive', null);
+                    }
+
                 }).catch(function(error) {
                     // Handle Errors here.
                     var errorCode = error.code;
@@ -131,6 +137,8 @@ appcontrol.controller('loginCtrl', function($rootScope, $state, $scope, $statePa
 
                     // [END_EXCLUDE]
                 });
+
+
                 // [END authwithemail]
 
             },

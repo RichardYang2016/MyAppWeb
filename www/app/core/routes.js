@@ -20,6 +20,36 @@ angular.module('app.routes', [])
         }
       })
 
+
+      .state('tabs.income', {
+        url: '/income',
+        views: {
+          'menuContent': {
+            templateUrl: 'app/income/income.html',
+            controller: 'incomeCtrl'
+          }
+        }
+      })
+      //
+      .state('tabs.expense', {
+        url: '/expense',
+        views: {
+          'menuContent': {
+            templateUrl: 'app/expense/expense.html',
+            controller: 'expenseCtrl'
+          }
+        }
+      })
+      .state('tabs.bank', {
+        url: '/bank',
+        views: {
+          'menuContent': {
+            templateUrl: 'app/banklink/banklink.html',
+            controller: 'bankCtrl'
+          }
+        }
+      })
+
       .state('tabs.reminders', {
         url: '/reminders',
         views: {

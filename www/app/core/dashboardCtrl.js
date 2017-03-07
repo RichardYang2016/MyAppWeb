@@ -6,6 +6,8 @@ appcontrol.controller('dashboardCtrl', function($rootScope, $state, $scope, $sta
         getChartData();
     };
 
+
+
     function getChartData() {
         var chart = appService.getChartData();
         $scope.sample = chart.sample;

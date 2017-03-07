@@ -7,11 +7,8 @@
     .service('appService', ['$state', '$ionicPopup', '$ionicActionSheet', '$ionicHistory', '$ionicLoading', '$timeout', '$http',
         function($state, $ionicPopup, $ionicActionSheet, $ionicHistory, $ionicLoading, $timeout, $http) {
             //global data                
-            var currentUser;
 
-
-
-
+            var currentUser = {};
             //service logic
             return {
                 getFirebaseConfig: function() {
@@ -22,13 +19,93 @@
                         storageBucket: "agileacc-1488095635682.appspot.com"
                             // messagingSenderId: "<SENDER_ID>",
                     };
-
+                },
+                getGlobalConfig: function() {
+                    return {
+                        userSrvURL: "http://192.168.1.221:3000/api/",
+                        serviceURL: "http://192.168.1.221:3000/api/"
+                    };
+                },
+                getHttpHeader: function() {
+                    var header = {};
+                    header["Content-Type"] = "application/json";
+                    header["x-access-token"] = currentUser.accessToken;
+                    header["x-uid"] = currentUser.uid;
+                    return header;
                 },
                 setUserInfo: function(user) {
-                    currentUser = user;
+                    if (user) {
+                        currentUser.displayName = (user.displayName) ? user.displayName : null;
+                        currentUser.email = user.email;
+                        currentUser.emailVerified = user.emailVerified;
+                        currentUser.photoURL = (user.photoURL) ? user.photoURL : null;
+                        currentUser.uid = user.uid;
+                        currentUser.providerData = (user.providerData) ? user.providerData : null;
+                        if (currentUser.providerData) {
+                            currentUser.photoURL = currentUser.providerData[0].photoURL;
+                            currentUser.displayName = currentUser.providerData[0].displayName;
+                        };
+                    } else {
+                        currentUser = {};
+                    }
+                },
+                setUserAccessToken: function(token) {
+                    currentUser.accessToken = token;
                 },
                 getUserInfo: function(user) {
                     return currentUser;
+                },
+                getUserFromServer(callback) {
+                    var url = this.getGlobalConfig().userSrvURL + "user";
+                    var uid = currentUser.uid;
+                    var headers = this.getHttpHeader();
+                    $http({
+                        method: "GET",
+                        url: url,
+                        headers: headers
+                    }).success(function(res) {
+                        var data = res.data;
+                        callback(false);
+
+                    }).error(function(res) {
+                        if (res) {
+                           callback(true);                            
+                        }
+                    })
+                },
+                createUserInServer: function() {
+                    var url = this.getGlobalConfig().userSrvURL + "user";
+                    var userData = JSON.stringify(currentUser);
+                    var headers = this.getHttpHeader();
+                    $http({
+                        method: "POST",
+                        url: url,
+                        headers: headers,
+                        data: userData
+                    }).then(function(result) {
+                        // status
+                        // statusText
+
+                    });
+
+                },
+                uploadDocument: function(type) {
+                    var url = this.getGlobalConfig().userSrvURL + "document";
+                    var headers = this.getHttpHeader();
+                    $http({
+                        method: "PUT",
+                        url: url,
+                        headers: headers,
+                        data: {
+                            type:type,
+                            data:"232132"
+                        }
+                    }).then(function(result) {
+                        // status
+                        // statusText
+                        var a = 1;
+                    });
+
                 },
                 Loading: function(params) {
                     if (params === 'show') {
@@ -47,7 +124,7 @@
                 },
                 showAlert: function(title, text, buttonText, buttonType, page) {
                     var alertPopup = $ionicPopup.alert({
-                        title: title,
+                        
                         template: text,
                         buttons: [{ text: buttonText, type: buttonType }]
                     });
