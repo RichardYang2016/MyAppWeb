@@ -1,0 +1,34 @@
+<ion-view title="Add Income" cache-view="false" ng-init="initAddIncome()">
+    <form name="reminderForm" novalidate scroll="yes">
+        <ion-content class="has-header has-footer">
+            <label class="item item-input item-floating-label">
+                <span class="input-label">Date</span>
+                <input type="text" placeholder="Date" ng-model="incomeToAdd.Date" ng-required="false" />
+            </label>
+            <label class="item item-input item-floating-label">
+                <span class="input-label">Comment</span>
+                <input type="text" placeholder="Comment" ng-model="incomeToAdd.Comment" ng-required=="false" />
+                <!-- "reminder.type=== 'Add Call'" /> -->
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Location</span>
+                <ion-google-place ng-model="reminder.location" current-location="true" />
+            </label>
+            <ion-slide-box show-pager="false">
+                <ion-slide>
+                    <img class = "add-image" ng-src="http://thekarachiite.com/wp-content/uploads/2015/10/waters.jpg" style="margin:10px;display:block">
+                </ion-slide>
+            </ion-slide-box>
+
+        </ion-content>        
+
+
+    </form>    
+    <ion-footer-bar align-title="center" class="add-image-footer bar-balanced">
+        <div class="button-bar">
+           <a class="camera button button-balanced ion-ios-camera-outline"></a>
+           <a class="album button button-balanced ion-ios-albums-outline"></a>
+            <a class="send button button-balanced ion-paper-airplane"></a>
+        </div> 
+</ion-footer-bar>
+</ion-view>

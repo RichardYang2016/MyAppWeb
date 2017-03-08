@@ -1499,7 +1499,33 @@ p {
 
 }
 
+.add-image{
+    object-fit: cover;
+    display: block;
+    margin: auto;
+    width: 95%;    
+    background-size: 100%;
 
+}
+
+.add-image-footer {
+    height : 49px;
+    .button-bar{
+        .camera{
+            font-size: 50px;
+            top: -2px;
+        }
+        .album{
+
+            font-size : 36px;
+            top: -2px;
+        }
+        .send{
+            font-size : 34px;
+            top: -2px;
+        }
+    }
+}
 /*------------END CUSTOM MODAL---------------- */
 
 

@@ -49,7 +49,16 @@ angular.module('app.routes', [])
           }
         }
       })
-
+     .state('tabs.incomeAdd', {
+        url: '/addIncome',   
+         views: {
+            'menuContent': {
+              templateUrl: 'app/income/addIncome.html',
+              controller: 'incomeCtrl'
+            }
+          }      
+        
+      })
       .state('tabs.reminders', {
         url: '/reminders',
         views: {
@@ -66,6 +75,8 @@ angular.module('app.routes', [])
         templateUrl: 'app/dashboard/create-edit-reminder.html',
         controller: 'appCtrl'
       })
+
+ 
 
       .state('authentication', {
         url: '/authentication',

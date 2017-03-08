@@ -26,7 +26,9 @@ appcontrol.controller('incomeCtrl', function($rootScope, $state, $scope, $stateP
         $scope.uploadDoc = function($event) {
             appService.uploadDocument("income");
         };
-
+        $scope.addIncomeDocument = function($event) {
+            $state.go('tabs.incomeAdd');
+        };
         // image modal
         $scope.imagePopover = function() {
             $ionicPopover.fromTemplateUrl('./app/common_template/imageModal.html', { scope: $scope })
