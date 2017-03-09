@@ -1,5 +1,4 @@
 angular.module('app', ['ionic', 'app.controllers', 'app.routes', 'app.services', 'app.directives'])
-
 .run(function($ionicPlatform, appService) {
     firebase.initializeApp(appService.getFirebaseConfig());    
     $ionicPlatform.ready(function() {
@@ -11,9 +10,7 @@ angular.module('app', ['ionic', 'app.controllers', 'app.routes', 'app.services',
         }
         if (window.StatusBar) {
             // org.apache.cordova.statusbar required
-            StatusBar.styleDefault();
+            StatusBar.hide();
         }
     });
-}).run(function() {
-
-})
+});

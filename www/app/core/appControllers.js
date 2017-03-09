@@ -9,8 +9,8 @@ var appcontrol = angular.module('app.controllers', [
     'ngLodash',
     'ion-datetime-picker',
     'ion-google-place',
-    'chart.js',
-    'ngCordovaOauth'
+    'chart.js'
+
 ]);
 appcontrol.controller('appCtrl', function($rootScope, $state, $scope, $stateParams, appService, $ionicHistory, $ionicPopover, $ionicModal,
     $ionicScrollDelegate, $ionicLoading, $ionicActionSheet, $cordovaCamera, $cordovaSocialSharing, $cordovaGeolocation, $timeout) {

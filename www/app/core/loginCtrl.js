@@ -99,54 +99,78 @@ appcontrol.controller('loginCtrl', function($rootScope, $state, $scope, $statePa
         $scope.loginPassword = function() {
 
 
-                if ((!$scope.user.loginEmail) || ($scope.user.loginEmail.length < 4)) {
-                    appService.showAlert("Opps", "Please enter a valid email address.", "Close", 'button-assertive', null);
-                    return;
+            if ((!$scope.user.loginEmail) || ($scope.user.loginEmail.length < 4)) {
+                appService.showAlert("Opps", "Please enter a valid email address.", "Close", 'button-assertive', null);
+                return;
+            }
+            if ($scope.user.password.length < 4) {
+                appService.showAlert("Opps", "Please enter a password.", "Close", 'button-assertive', null);
+                return;
+            }
+            // Sign in with email and pass.
+            // [START authwithemail]
+            firebase.auth().signInWithEmailAndPassword($scope.user.loginEmail, $scope.user.password).then(function() {
+
+                if (firebase.auth().currentUser.emailVerified || firebase.auth().currentUser.providerData[0].providerId != "password") {
+                    $scope.closeAllLogin();
+                } else {
+                    appService.showAlert("Opps", "This email has not been verified.", "Close", 'button-assertive', null);
                 }
-                if ($scope.user.password.length < 4) {
-                    appService.showAlert("Opps", "Please enter a password.", "Close", 'button-assertive', null);
-                    return;
+
+            }).catch(function(error) {
+                // Handle Errors here.
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                // [START_EXCLUDE]
+                if (errorCode === 'auth/wrong-password') {
+                    appService.showAlert("Opps", "Please check the username and password and try again.", "Close", 'button-assertive', null);
+                } else
+                if (errorCode === "auth/invalid-email") {
+                    appService.showAlert("", "Email is not valid", "Close", 'button-assertive', null);
+                } else if (errorCode === "auth/user-not-found") {
+
+                    appService.showAlert("Opps", "Please check the username and password and try again.", "Close", 'button-assertive', null);
+                } else {
+                    appService.showAlert("Opps", errorMessage, "Close", 'button-assertive', null);
+
                 }
-                // Sign in with email and pass.
-                // [START authwithemail]
-                firebase.auth().signInWithEmailAndPassword($scope.user.loginEmail, $scope.user.password).then(function() {
+                console.log(error);
 
-                    if (firebase.auth().currentUser.emailVerified || firebase.auth().currentUser.providerData[0].providerId != "password") {
-                        $scope.closeAllLogin();
-                    } else {
-                        appService.showAlert("Opps", "This email has not been verified.", "Close", 'button-assertive', null);
-                    }
-
-                }).catch(function(error) {
-                    // Handle Errors here.
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    // [START_EXCLUDE]
-                    if (errorCode === 'auth/wrong-password') {
-                        appService.showAlert("Opps", "Please check the username and password and try again.", "Close", 'button-assertive', null);
-                    } else
-                    if (errorCode === "auth/invalid-email") {
-                        appService.showAlert("", "Email is not valid", "Close", 'button-assertive', null);
-                    } else if (errorCode === "auth/user-not-found") {
-
-                        appService.showAlert("Opps", "Please check the username and password and try again.", "Close", 'button-assertive', null);
-                    } else {
-                        appService.showAlert("Opps", errorMessage, "Close", 'button-assertive', null);
-
-                    }
-                    console.log(error);
-
-                    // [END_EXCLUDE]
-                });
+                // [END_EXCLUDE]
+            });
 
 
-                // [END authwithemail]
+            // [END authwithemail]
 
-            },
+        };
 
-            $scope.facebookSignIn = function() {
-                //facebook
-                $scope.closeAllLogin();
+        $scope.facebookSignIn = function() {
+            //facebook
+            $scope.closeAllLogin();
+            if (ionic.Platform.isWebView()) {
+                $cordovaOauth.facebook("1647428162233139", ["email", "public_profile"], { redirect_uri: "http://localhost/callback" })
+                    .then(function(result) {
+                        var credential = firebase.auth.FacebookAuthProvider.credential(result.access_token);
+                        firebase.auth().signInWithCredential(credential);
+                    }).catch(function(error) {
+                        // Handle Errors here.
+                        var errorCode = error.code;
+                        var errorMessage = error.message;
+                        // The email of the user's account used.
+                        var email = error.email;
+                        // The firebase.auth.AuthCredential type that was used.
+                        var credential = error.credential;
+                        // [START_EXCLUDE]
+                        if (errorCode === 'auth/account-exists-with-different-credential') {
+                            appService.showAlert("Opps", "You have already signed up with a different auth provider for that email.", "Close", 'button-assertive', null);
+                            // If you are using multiple auth providers on your app you should handle linking
+                            // the user's accounts here.
+                        } else {
+                            console.error(error);
+                        }
+                        // [END_EXCLUDE]
+                    })
+            } else {
                 var provider = new firebase.auth.FacebookAuthProvider();
 
                 //provider.addScope('');
@@ -181,137 +205,74 @@ appcontrol.controller('loginCtrl', function($rootScope, $state, $scope, $statePa
                     }
 
                 });
-
-
-            };
-
-        $scope.googleSignIn = function() {
-                $scope.closeAllLogin();
-                if (ionic.Platform.isWebView()) {
-                    $cordovaOauth.google("605600474461-ojqpbk7eaksl2heminja5oe5f5ifk3hs.apps.googleusercontent.com" + '&include_profile=true', ["email", "profile"])
-                        .then(function(result) {
-                            var credential = firebase.auth.GoogleAuthProvider.credential(result.id_token);
-                            firebase.auth().signInWithCredential(credential);
-                        }).catch(function(error) {
-                            // Handle Errors here.
-                            var errorCode = error.code;
-                            var errorMessage = error.message;
-                            // The email of the user's account used.
-                            var email = error.email;
-                            // The firebase.auth.AuthCredential type that was used.
-                            var credential = error.credential;
-                            // [START_EXCLUDE]
-                            if (errorCode === 'auth/account-exists-with-different-credential') {
-                                appService.showAlert("Opps", "You have already signed up with a different auth provider for that email.", "Close", 'button-assertive', null);
-                                // If you are using multiple auth providers on your app you should handle linking
-                                // the user's accounts here.
-                            } else {
-                                console.error(error);
-                            }
-                            // [END_EXCLUDE]
-                        })
-                } else {
-                    var provider = new firebase.auth.GoogleAuthProvider();
-                    // [END createprovider]
-                    // [START addscopes]
-                    provider.addScope('https://www.googleapis.com/auth/plus.login');
-                    // [END addscopes]
-                    // [START signin]
-                    firebase.auth().signInWithPopup(provider).then(function(result) {
-                            // This gives you a Google Access Token. You can use it to access the Google API.
-                            var token = result.credential.accessToken;
-                            // The signed-in user info.
-                            var user = result.user;
-
-                        }
-                    ).catch(function(error) {
-                    // Handle Errors here.
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    // The email of the user's account used.
-                    var email = error.email;
-                    // The firebase.auth.AuthCredential type that was used.
-                    var credential = error.credential;
-                    // [START_EXCLUDE]
-                    if (errorCode === 'auth/account-exists-with-different-credential') {
-                        appService.showAlert("Opps", "You have already signed up with a different auth provider for that email.", "Close", 'button-assertive', null);
-                        // If you are using multiple auth providers on your app you should handle linking
-                        // the user's accounts here.
-                    } else {
-                        console.error(error);
-                    }
-                    // [END_EXCLUDE]
-                });
             }
-            // [END signin]
-    };
 
-
-    // Sign up modal
-    $ionicModal.fromTemplateUrl('app/intro/signup.html', {
-        scope: $scope,
-        animation: 'fade-in-scale',
-        backdropClickToClose: false
-    }).then(function(modal) {
-        $scope.modalRegister = modal;
-    });
-    $scope.openRegister = function() {
-        $scope.modalRegister.show();
-    };
-    $scope.closeRegister = function() {
-        $scope.modalRegister.hide();
-    };
-
-    // Forgot Password modal
-    $ionicModal.fromTemplateUrl('app/intro/forgot.html', {
-        scope: $scope,
-        animation: 'fade-in-scale',
-        backdropClickToClose: false
-    }).then(function(modal) {
-        $scope.modalForgot = modal;
-    });
-    $scope.openForgot = function() {
-        $scope.modalForgot.show();
-    };
-    $scope.closeForgot = function() {
-        $scope.modalForgot.hide();
-    };
-
-
-    $scope.uploadUserPhoto = function() {
-        $ionicActionSheet.show({
-            buttons: [{
-                text: 'Take Picture'
-            }, {
-                text: 'Select From Gallery'
-            }],
-            buttonClicked: function(index) {
-                switch (index) {
-                    case 0: // Take Picture
-                        document.addEventListener("deviceready", function() {
-                            $cordovaCamera.getPicture(appService.getCameraOptions()).then(function(imageData) {
-                                alert(imageData);
-                                $rootScope.user.photo = "data:image/jpeg;base64," + imageData;
-                            }, function(err) {
-                                appService.showAlert('Error', err, 'Close', 'button-assertive', null);
-                            });
-                        }, false);
-
-                        break;
-                    case 1: // Select From Gallery
-                        document.addEventListener("deviceready", function() {
-                            $cordovaCamera.getPicture(appService.getLibraryOptions()).then(function(imageData) {
-                                $rootScope.user.photo = "data:image/jpeg;base64," + imageData;
-                            }, function(err) {
-                                appService.showAlert('Error', err, 'Close', 'button-assertive', null);
-                            });
-                        }, false);
-                        break;
-                }
-                return true;
-            }
+        };
+        // Sign up modal
+        $ionicModal.fromTemplateUrl('app/intro/signup.html', {
+            scope: $scope,
+            animation: 'fade-in-scale',
+            backdropClickToClose: false
+        }).then(function(modal) {
+            $scope.modalRegister = modal;
         });
-    };
+        $scope.openRegister = function() {
+            $scope.modalRegister.show();
+        };
+        $scope.closeRegister = function() {
+            $scope.modalRegister.hide();
+        };
 
-}
+        // Forgot Password modal
+        $ionicModal.fromTemplateUrl('app/intro/forgot.html', {
+            scope: $scope,
+            animation: 'fade-in-scale',
+            backdropClickToClose: false
+        }).then(function(modal) {
+            $scope.modalForgot = modal;
+        });
+        $scope.openForgot = function() {
+            $scope.modalForgot.show();
+        };
+        $scope.closeForgot = function() {
+            $scope.modalForgot.hide();
+        };
+
+
+        $scope.uploadUserPhoto = function() {
+            $ionicActionSheet.show({
+                buttons: [{
+                    text: 'Take Picture'
+                }, {
+                    text: 'Select From Gallery'
+                }],
+                buttonClicked: function(index) {
+                    switch (index) {
+                        case 0: // Take Picture
+                            document.addEventListener("deviceready", function() {
+                                $cordovaCamera.getPicture(appService.getCameraOptions()).then(function(imageData) {
+                                    alert(imageData);
+                                    $rootScope.user.photo = "data:image/jpeg;base64," + imageData;
+                                }, function(err) {
+                                    appService.showAlert('Error', err, 'Close', 'button-assertive', null);
+                                });
+                            }, false);
+
+                            break;
+                        case 1: // Select From Gallery
+                            document.addEventListener("deviceready", function() {
+                                $cordovaCamera.getPicture(appService.getLibraryOptions()).then(function(imageData) {
+                                    $rootScope.user.photo = "data:image/jpeg;base64," + imageData;
+                                }, function(err) {
+                                    appService.showAlert('Error', err, 'Close', 'button-assertive', null);
+                                });
+                            }, false);
+                            break;
+                    }
+                    return true;
+                }
+            });
+        };
+
+    }
 })
