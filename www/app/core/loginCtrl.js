@@ -1,5 +1,6 @@
-appcontrol.controller('loginCtrl', function($rootScope, $state, $scope, $stateParams, appService, $ionicHistory, $ionicPopover, $ionicModal,
-    $ionicScrollDelegate, $ionicLoading, $ionicActionSheet, $cordovaCamera, $cordovaSocialSharing, $cordovaGeolocation, $timeout, $ionicPopup, $document) {
+appcontrol.controller('loginCtrl', function($rootScope, $state, $scope, $stateParams, appService,
+    $ionicHistory, $ionicPopover, $ionicModal, $ionicScrollDelegate, $ionicLoading, $ionicActionSheet,
+    $cordovaCamera, $cordovaSocialSharing, $cordovaGeolocation, $timeout, $ionicPopup, $document) {
 
     $scope.initIntro = function() {
 
@@ -112,7 +113,7 @@ appcontrol.controller('loginCtrl', function($rootScope, $state, $scope, $statePa
 
                     if (firebase.auth().currentUser.emailVerified || firebase.auth().currentUser.providerData[0].providerId != "password") {
                         $scope.closeAllLogin();
-                    }else{
+                    } else {
                         appService.showAlert("Opps", "This email has not been verified.", "Close", 'button-assertive', null);
                     }
 
@@ -185,106 +186,132 @@ appcontrol.controller('loginCtrl', function($rootScope, $state, $scope, $statePa
             };
 
         $scope.googleSignIn = function() {
-            $scope.closeAllLogin();
-            var provider = new firebase.auth.GoogleAuthProvider();
-            // [END createprovider]
-            // [START addscopes]
-            provider.addScope('https://www.googleapis.com/auth/plus.login');
-            // [END addscopes]
-            // [START signin]
-            firebase.auth().signInWithPopup(provider).then(function(result) {
-                // This gives you a Google Access Token. You can use it to access the Google API.
-                var token = result.credential.accessToken;
-                // The signed-in user info.
-                var user = result.user;
-
-            }).catch(function(error) {
-                // Handle Errors here.
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                // The email of the user's account used.
-                var email = error.email;
-                // The firebase.auth.AuthCredential type that was used.
-                var credential = error.credential;
-                // [START_EXCLUDE]
-                if (errorCode === 'auth/account-exists-with-different-credential') {
-                    appService.showAlert("Opps", "You have already signed up with a different auth provider for that email.", "Close", 'button-assertive', null);
-                    // If you are using multiple auth providers on your app you should handle linking
-                    // the user's accounts here.
+                $scope.closeAllLogin();
+                if (ionic.Platform.isWebView()) {
+                    $cordovaOauth.google("605600474461-ojqpbk7eaksl2heminja5oe5f5ifk3hs.apps.googleusercontent.com" + '&include_profile=true', ["email", "profile"])
+                        .then(function(result) {
+                            var credential = firebase.auth.GoogleAuthProvider.credential(result.id_token);
+                            firebase.auth().signInWithCredential(credential);
+                        }).catch(function(error) {
+                            // Handle Errors here.
+                            var errorCode = error.code;
+                            var errorMessage = error.message;
+                            // The email of the user's account used.
+                            var email = error.email;
+                            // The firebase.auth.AuthCredential type that was used.
+                            var credential = error.credential;
+                            // [START_EXCLUDE]
+                            if (errorCode === 'auth/account-exists-with-different-credential') {
+                                appService.showAlert("Opps", "You have already signed up with a different auth provider for that email.", "Close", 'button-assertive', null);
+                                // If you are using multiple auth providers on your app you should handle linking
+                                // the user's accounts here.
+                            } else {
+                                console.error(error);
+                            }
+                            // [END_EXCLUDE]
+                        })
                 } else {
-                    console.error(error);
-                }
-                // [END_EXCLUDE]
-            });
-            // [END signin]
-        }
+                    var provider = new firebase.auth.GoogleAuthProvider();
+                    // [END createprovider]
+                    // [START addscopes]
+                    provider.addScope('https://www.googleapis.com/auth/plus.login');
+                    // [END addscopes]
+                    // [START signin]
+                    firebase.auth().signInWithPopup(provider).then(function(result) {
+                            // This gives you a Google Access Token. You can use it to access the Google API.
+                            var token = result.credential.accessToken;
+                            // The signed-in user info.
+                            var user = result.user;
 
-
-        // Sign up modal
-        $ionicModal.fromTemplateUrl('app/intro/signup.html', {
-            scope: $scope,
-            animation: 'fade-in-scale',
-            backdropClickToClose: false
-        }).then(function(modal) {
-            $scope.modalRegister = modal;
-        });
-        $scope.openRegister = function() {
-            $scope.modalRegister.show();
-        };
-        $scope.closeRegister = function() {
-            $scope.modalRegister.hide();
-        };
-
-        // Forgot Password modal
-        $ionicModal.fromTemplateUrl('app/intro/forgot.html', {
-            scope: $scope,
-            animation: 'fade-in-scale',
-            backdropClickToClose: false
-        }).then(function(modal) {
-            $scope.modalForgot = modal;
-        });
-        $scope.openForgot = function() {
-            $scope.modalForgot.show();
-        };
-        $scope.closeForgot = function() {
-            $scope.modalForgot.hide();
-        };
-
-
-        $scope.uploadUserPhoto = function() {
-            $ionicActionSheet.show({
-                buttons: [{
-                    text: 'Take Picture'
-                }, {
-                    text: 'Select From Gallery'
-                }],
-                buttonClicked: function(index) {
-                    switch (index) {
-                        case 0: // Take Picture
-                            document.addEventListener("deviceready", function() {
-                                $cordovaCamera.getPicture(appService.getCameraOptions()).then(function(imageData) {
-                                    alert(imageData);
-                                    $rootScope.user.photo = "data:image/jpeg;base64," + imageData;
-                                }, function(err) {
-                                    appService.showAlert('Error', err, 'Close', 'button-assertive', null);
-                                });
-                            }, false);
-
-                            break;
-                        case 1: // Select From Gallery
-                            document.addEventListener("deviceready", function() {
-                                $cordovaCamera.getPicture(appService.getLibraryOptions()).then(function(imageData) {
-                                    $rootScope.user.photo = "data:image/jpeg;base64," + imageData;
-                                }, function(err) {
-                                    appService.showAlert('Error', err, 'Close', 'button-assertive', null);
-                                });
-                            }, false);
-                            break;
+                        }
+                    ).catch(function(error) {
+                    // Handle Errors here.
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    // The email of the user's account used.
+                    var email = error.email;
+                    // The firebase.auth.AuthCredential type that was used.
+                    var credential = error.credential;
+                    // [START_EXCLUDE]
+                    if (errorCode === 'auth/account-exists-with-different-credential') {
+                        appService.showAlert("Opps", "You have already signed up with a different auth provider for that email.", "Close", 'button-assertive', null);
+                        // If you are using multiple auth providers on your app you should handle linking
+                        // the user's accounts here.
+                    } else {
+                        console.error(error);
                     }
-                    return true;
-                }
-            });
-        };
+                    // [END_EXCLUDE]
+                });
+            }
+            // [END signin]
+    };
 
-    }
+
+    // Sign up modal
+    $ionicModal.fromTemplateUrl('app/intro/signup.html', {
+        scope: $scope,
+        animation: 'fade-in-scale',
+        backdropClickToClose: false
+    }).then(function(modal) {
+        $scope.modalRegister = modal;
+    });
+    $scope.openRegister = function() {
+        $scope.modalRegister.show();
+    };
+    $scope.closeRegister = function() {
+        $scope.modalRegister.hide();
+    };
+
+    // Forgot Password modal
+    $ionicModal.fromTemplateUrl('app/intro/forgot.html', {
+        scope: $scope,
+        animation: 'fade-in-scale',
+        backdropClickToClose: false
+    }).then(function(modal) {
+        $scope.modalForgot = modal;
+    });
+    $scope.openForgot = function() {
+        $scope.modalForgot.show();
+    };
+    $scope.closeForgot = function() {
+        $scope.modalForgot.hide();
+    };
+
+
+    $scope.uploadUserPhoto = function() {
+        $ionicActionSheet.show({
+            buttons: [{
+                text: 'Take Picture'
+            }, {
+                text: 'Select From Gallery'
+            }],
+            buttonClicked: function(index) {
+                switch (index) {
+                    case 0: // Take Picture
+                        document.addEventListener("deviceready", function() {
+                            $cordovaCamera.getPicture(appService.getCameraOptions()).then(function(imageData) {
+                                alert(imageData);
+                                $rootScope.user.photo = "data:image/jpeg;base64," + imageData;
+                            }, function(err) {
+                                appService.showAlert('Error', err, 'Close', 'button-assertive', null);
+                            });
+                        }, false);
+
+                        break;
+                    case 1: // Select From Gallery
+                        document.addEventListener("deviceready", function() {
+                            $cordovaCamera.getPicture(appService.getLibraryOptions()).then(function(imageData) {
+                                $rootScope.user.photo = "data:image/jpeg;base64," + imageData;
+                            }, function(err) {
+                                appService.showAlert('Error', err, 'Close', 'button-assertive', null);
+                            });
+                        }, false);
+                        break;
+                }
+                return true;
+            }
+        });
+    };
+
+}
 })

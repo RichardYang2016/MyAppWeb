@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "lodash": "^4.13.1",
-    "Chart.js": "^2.1.4"
+    "Chart.js": "^2.1.4",
+    "ng-cordova-oauth": "^0.3.0"
   },
   "resolutions": {
     "Chart.js": "~1.1.1",
