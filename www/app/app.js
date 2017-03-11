@@ -1,4 +1,7 @@
 angular.module('app', ['ionic', 'app.controllers', 'app.routes', 'app.services', 'app.directives'])
+.config(function($ionicConfigProvider) {
+  $ionicConfigProvider.tabs.position('bottom');
+})
 .run(function($ionicPlatform, appService) {
     firebase.initializeApp(appService.getFirebaseConfig());    
     $ionicPlatform.ready(function() {

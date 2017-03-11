@@ -1,6 +1,6 @@
 appcontrol.controller('loginCtrl', function($rootScope, $state, $scope, $stateParams, appService,
     $ionicHistory, $ionicPopover, $ionicModal, $ionicScrollDelegate, $ionicLoading, $ionicActionSheet,
-    $cordovaCamera, $cordovaSocialSharing, $cordovaGeolocation, $timeout, $ionicPopup, $document) {
+    $cordovaCamera, $cordovaSocialSharing, $cordovaGeolocation, $timeout, $ionicPopup, $document, $cordovaOauth) {
 
     $scope.initIntro = function() {
 

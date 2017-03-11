@@ -56,7 +56,7 @@
                     return currentUser;
                 },
                 getUserFromServer(callback) {
-                    var url = this.getGlobalConfig().userSrvURL + "user";
+                    var url = this.getGlobalConfig().userSrvURL + 'user';
                     var uid = currentUser.uid;
                     var headers = this.getHttpHeader();
                     $http({
@@ -74,7 +74,7 @@
                     })
                 },
                 createUserInServer: function() {
-                    var url = this.getGlobalConfig().userSrvURL + "user";
+                    var url = this.getGlobalConfig().userSrvURL + 'user';
                     var userData = JSON.stringify(currentUser);
                     var headers = this.getHttpHeader();
                     $http({
@@ -90,7 +90,7 @@
 
                 },
                 uploadDocument: function(type) {
-                    var url = this.getGlobalConfig().userSrvURL + "document";
+                    var url = this.getGlobalConfig().userSrvURL + 'document';
                     var headers = this.getHttpHeader();
                     $http({
                         method: "PUT",
