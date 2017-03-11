@@ -1508,7 +1508,7 @@ p {
 
 }
 
-.add-image-footer {
+.add-image-footer{
     height : 49px;
     padding: 0px;
     border-top-width: 0px;
@@ -1518,17 +1518,35 @@ p {
             border-width: 0px 0px 0px 0px;
         }
         .camera{
-            font-size: 50px;   
+            font-size: 40px;   
         }
         .album{
-            font-size: 36px;                   
+            font-size: 33px;                   
         }
         .send{
-            font-size : 32px;   
+            font-size : 29px;   
             
         }
     }
 }
+
+.add-bank-footer {
+    height : 49px;
+    padding: 0px;
+    border-top-width: 0px;
+    .button-bar{
+        .button{
+            position: relative;
+            border-width: 0px 0px 0px 0px;
+        }       
+        .linkBank{
+            top: 3px;
+            font-size : 37px;   
+
+        }
+    }
+}
+
 /*------------END CUSTOM MODAL---------------- */
 
 
