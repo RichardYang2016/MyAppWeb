@@ -8,9 +8,12 @@ appcontrol.controller('bankCtrl', function($rootScope, $state, $scope, $statePar
 
         $scope.linkHandler = Plaid.create({
             env: 'tartan',
-            clientName: 'AgileCo',
+            clientName: 'AgileCo',            
+            product: ['auth'],
             key: '3d45931dd00ae65265551bfd25d0b3',
-            product: 'connect',
+
+            //key: '3d45931dd00ae65265551bfd25d0b3',
+            //product: 'connect',
             
             onLoad: function() {
                 // The Link module finished loading.
@@ -31,8 +34,10 @@ appcontrol.controller('bankCtrl', function($rootScope, $state, $scope, $statePar
             }
         });
 
-        $scope.onClick = function() {
-            $scope.linkHandler.open();
+        $scope.onClick = function(){
+           // $scope.linkHandler.open();
+
+           appService.addLinkedAccount("826b9d9682634da308b4b81ea8fa17ee1ac42019f0e359a3710852174ade30b459599483b9d303834088030c26d8a62fbe3e10d7def51ae28171d258814d2de1");
         };
     };
 

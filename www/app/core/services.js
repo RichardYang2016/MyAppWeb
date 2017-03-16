@@ -9,7 +9,16 @@
             //global data                
 
             var currentUser = {};
-            //service logic
+            var Loading = function(params) {
+                    if (params === 'show') {
+                        $ionicLoading.show({
+                            template: '<ion-spinner></ion-spinner>'
+                        });
+                    } else {
+                        $ionicLoading.hide();
+                    }
+                }
+                //service logic
             return {
                 getFirebaseConfig: function() {
                     return {
@@ -69,7 +78,7 @@
 
                     }).error(function(res) {
                         if (res) {
-                           callback(true);                            
+                            callback(true);
                         }
                     })
                 },
@@ -89,32 +98,63 @@
                     });
 
                 },
-                uploadDocument: function(type) {
-                    var url = this.getGlobalConfig().userSrvURL + 'document';
+                uploadDocument: function(type, doc) {
+                    Loading('show');
+                    var url = this.getGlobalConfig().serviceURL + 'document';
                     var headers = this.getHttpHeader();
                     $http({
                         method: "PUT",
                         url: url,
                         headers: headers,
                         data: {
-                            type:type,
-                            data:"232132"
+                            type: type,
+                            data: doc.doc,
+                            thumbnail: doc.thumb,
+                            comment: doc.comment,
+                            location: doc.location === null ? doc.location.formatted_address: null,
                         }
                     }).then(function(result) {
-                        // status
-                        // statusText
-                        var a = 1;
+                        Loading('hide');
+                        $ionicHistory.goBack();
                     });
 
                 },
-                Loading: function(params) {
-                    if (params === 'show') {
-                        $ionicLoading.show({
-                            template: '<ion-spinner></ion-spinner>'
-                        });
-                    } else {
-                        $ionicLoading.hide();
-                    }
+                getDocument: function(showSpin, type, skip, func) {
+                    if (showSpin) Loading('show');
+                    var url = this.getGlobalConfig().serviceURL + 'document';
+                    var headers = this.getHttpHeader();
+                    $http({
+                        method: "GET",
+                        url: url,
+                        headers: headers,
+                        params: {
+                            type: type,
+                            skip: skip
+                        }
+                    }).then(function(result) {
+                        func(result.data.result);
+                        if (showSpin) Loading('hide');
+
+                    });
+
+                },
+                addLinkedAccount: function(token) {
+                    Loading('show');
+                    var url = this.getGlobalConfig().serviceURL + 'LinkedAccount';
+                    var headers = this.getHttpHeader();
+                    $http({
+                        method: "POST",
+                        url: url,
+                        headers: headers,
+                        data: {
+                            publicToken: token
+                        }
+                    }).then(function(result) {
+                        Loading('hide');
+                    }).catch(function(err) {
+                        Loading('hide');
+                    });
+
                 },
                 KeepKeyboardOpen: function(params) {
                     var txtInput = angular.element(document.body.querySelector(params));
@@ -124,7 +164,7 @@
                 },
                 showAlert: function(title, text, buttonText, buttonType, page) {
                     var alertPopup = $ionicPopup.alert({
-                        
+
                         template: text,
                         buttons: [{ text: buttonText, type: buttonType }]
                     });

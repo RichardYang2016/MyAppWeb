@@ -56,8 +56,7 @@ angular.module('app.routes', [])
               templateUrl: 'app/income/addIncome.html',
               controller: 'incomeCtrl'
             }
-          }      
-        
+          }
       })
       .state('tabs.reminders', {
         url: '/reminders',
